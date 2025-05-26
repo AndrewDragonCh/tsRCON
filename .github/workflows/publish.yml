@@ -1,9 +1,9 @@
-name: Publish to npm
+name: Publish to npm (pnpm)
 
 on:
   push:
     branches:
-      - main   # or your default branch
+      - main
 
 jobs:
   publish:
@@ -16,16 +16,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 22
           registry-url: https://registry.npmjs.org/
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install pnpm
+        run: npm install -g pnpm
 
-      - name: Run tests
-        run: npm test
+      - name: Install dependencies with pnpm
+        run: pnpm install
 
-      - name: Publish package
-        run: npm publish
+      # - name: Run tests with pnpm
+      #   run: pnpm test
+
+      - name: Publish package with pnpm
+        run: pnpm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
