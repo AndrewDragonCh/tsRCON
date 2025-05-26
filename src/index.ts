@@ -8,6 +8,15 @@ enum RCONPacketType {
   AUTH_RESPONSE = 2,
 }
 
+type RCONClientOptions = {
+  timeout?: number;
+  retries?: number;
+  reconnect?: boolean;
+  reconnectDelay?: number;
+  maxReconnectAttempts?: number;
+  minDelayBetweenRequests?: number;
+};
+
 type PacketResponse = {
   resolve: (resp: string) => void;
   reject: (err: Error) => void;
@@ -18,23 +27,30 @@ type PacketResponse = {
 export class RCONClient {
   private socket: Socket;
   private buffer = Buffer.alloc(0);
+  private isConnected = false;
+  private reconnectAttempts = 0;
   private authenticated = false;
   private callbacks: Map<number, PacketResponse> = new Map();
-  private options: {
-    timeout: number;
-    retries: number;
-  };
+  private requestQueue: (() => Promise<void>)[] = [];
+  private processingQueue = false;
+  private lastRequestTime = 0;
+
+  private options: Required<RCONClientOptions>;
 
   constructor(
     private host: string,
     private port: number,
     private password: string,
-    opts?: Partial<{ timeout: number; retries: number }>
+    opts?: RCONClientOptions
   ) {
     this.socket = new Socket();
     this.options = {
       timeout: opts?.timeout ?? 3000,
       retries: opts?.retries ?? 1,
+      reconnect: opts?.reconnect ?? true,
+      reconnectDelay: opts?.reconnectDelay ?? 2000,
+      maxReconnectAttempts: opts?.maxReconnectAttempts ?? 5,
+      minDelayBetweenRequests: opts?.minDelayBetweenRequests ?? 0,
     };
   }
 
@@ -43,13 +59,23 @@ export class RCONClient {
       this.socket.connect(this.port, this.host, async () => {
         this.socket.on('data', this.handleData.bind(this));
         this.socket.on('error', (err) => {
-          for (const cb of this.callbacks.values()) {
-            cb.reject(err);
+          for (const cb of this.callbacks.values()) cb.reject(err);
+          this.callbacks.clear();
+        });
+
+        this.socket.on('close', () => {
+          this.isConnected = false;
+          this.authenticated = false;
+
+          if (this.options.reconnect) {
+            this.tryReconnect();
           }
         });
 
         try {
           await this.authenticate();
+          this.isConnected = true;
+          this.reconnectAttempts = 0;
           resolve();
         } catch (e) {
           reject(e);
@@ -62,6 +88,24 @@ export class RCONClient {
 
   disconnect() {
     this.socket.end();
+    this.socket.destroy();
+    this.isConnected = false;
+    this.authenticated = false;
+  }
+
+  private async tryReconnect() {
+    if (this.reconnectAttempts >= this.options.maxReconnectAttempts) return;
+
+    this.reconnectAttempts++;
+    setTimeout(async () => {
+      try {
+        await this.connect();
+        console.log('RCON: Reconnected successfully');
+      } catch (err) {
+        console.error('RCON: Reconnect failed:', err);
+        this.tryReconnect();
+      }
+    }, this.options.reconnectDelay);
   }
 
   private handleData(data: Buffer) {
@@ -139,15 +183,36 @@ export class RCONClient {
   }
 
   async sendCommand(command: string): Promise<string> {
-    if (!this.authenticated) throw new Error('Not authenticated');
-    for (let attempt = 1; attempt <= this.options.retries + 1; attempt++) {
-      try {
-        return await this.sendPacket(RCONPacketType.COMMAND, command);
-      } catch (err) {
-        if (attempt > this.options.retries) throw err;
-      }
-    }
-    throw new Error('All retries failed');
+    return new Promise((resolve, reject) => {
+      const task = async () => {
+        const now = Date.now();
+        const delay = Math.max(this.options.minDelayBetweenRequests - (now - this.lastRequestTime), 0);
+        if (delay > 0) await new Promise((r) => setTimeout(r, delay));
+
+        try {
+          if (!this.authenticated) throw new Error('Not authenticated');
+          const result = await this.sendPacket(RCONPacketType.COMMAND, command);
+          this.lastRequestTime = Date.now();
+          resolve(result);
+        } catch (err) {
+          reject(err);
+        }
+
+        this.processingQueue = false;
+        this.processQueue();
+      };
+
+      this.requestQueue.push(task);
+      this.processQueue();
+    });
+  }
+
+  private async processQueue() {
+    if (this.processingQueue || this.requestQueue.length === 0) return;
+
+    this.processingQueue = true;
+    const next = this.requestQueue.shift();
+    if (next) await next();
   }
 
   async ping(): Promise<boolean> {
