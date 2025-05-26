@@ -28,6 +28,9 @@ jobs:
       # - name: Run tests with pnpm
       #   run: pnpm test
 
+      - name: Build the package
+        run: pnpm run build
+
       - name: Publish package with pnpm
         run: pnpm publish --access public
         env:
