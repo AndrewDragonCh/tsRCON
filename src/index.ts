@@ -52,26 +52,24 @@ export class RCONClient {
       maxReconnectAttempts: opts?.maxReconnectAttempts ?? 5,
       minDelayBetweenRequests: opts?.minDelayBetweenRequests ?? 0,
     };
+
+    this.socket.on('data', this.handleData.bind(this));
+    this.socket.on('error', (err) => {
+      for (const cb of this.callbacks.values()) cb.reject(err);
+      this.callbacks.clear();
+    });
+    this.socket.on('close', () => {
+      this.isConnected = false;
+      this.authenticated = false;
+      if (this.options.reconnect) {
+        this.tryReconnect();
+      }
+    });
   }
 
   async connect(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.socket.connect(this.port, this.host, async () => {
-        this.socket.on('data', this.handleData.bind(this));
-        this.socket.on('error', (err) => {
-          for (const cb of this.callbacks.values()) cb.reject(err);
-          this.callbacks.clear();
-        });
-
-        this.socket.on('close', () => {
-          this.isConnected = false;
-          this.authenticated = false;
-
-          if (this.options.reconnect) {
-            this.tryReconnect();
-          }
-        });
-
         try {
           await this.authenticate();
           this.isConnected = true;
@@ -81,8 +79,6 @@ export class RCONClient {
           reject(e);
         }
       });
-
-      this.socket.on('error', reject);
     });
   }
 
