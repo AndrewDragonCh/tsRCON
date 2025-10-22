@@ -1,6 +1,6 @@
 {
   "name": "tsrcon-client",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -27,9 +27,9 @@
   "license": "ISC",
   "packageManager": "pnpm@10.7.1",
   "devDependencies": {
-    "@types/node": "24.0.10",
+    "@types/node": "24.9.1",
     "tsdown": "^0.15.9",
-    "typescript": "5.8.3"
+    "typescript": "5.9.3"
   },
   "dependencies": {
     "net": "^1.0.2"
