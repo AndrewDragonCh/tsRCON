@@ -11,7 +11,7 @@
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts --dts --format esm,cjs"
+    "build": "tsdown src/index.ts --dts --format esm,cjs"
   },
   "keywords": [
     "RCON",
@@ -28,7 +28,7 @@
   "packageManager": "pnpm@10.7.1",
   "devDependencies": {
     "@types/node": "24.0.10",
-    "tsup": "8.5.0",
+    "tsdown": "^0.15.9",
     "typescript": "5.8.3"
   },
   "dependencies": {
