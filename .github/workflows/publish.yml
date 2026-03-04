@@ -15,16 +15,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           registry-url: https://registry.npmjs.org/
-
-      - name: Install Bun
-        run: npm install -g bun
 
       - name: Install dependencies with Bun
         run: bun install
@@ -33,4 +30,4 @@ jobs:
         run: bun run build
 
       - name: Publish package with npm
-        run: npm publish --access public
+        run: npm publish
