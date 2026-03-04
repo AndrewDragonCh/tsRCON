@@ -6,6 +6,7 @@ on:
       - main
 
 permissions:
+  id-token: write
   contents: read
 
 jobs:
@@ -25,13 +26,13 @@ jobs:
       - name: Install Bun
         run: npm install -g bun
 
-      - name: Install dependencies with pnpm
+      - name: Install dependencies with Bun
         run: bun install
 
       - name: Build the package
         run: bun run build
 
       - name: Publish package with npm
-        run: npm publish --access public
+        run: bun publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
