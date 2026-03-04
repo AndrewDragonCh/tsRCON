@@ -23,11 +23,11 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org/
 
+      - name: Install Bun
+        run: npm install -g bun
+
       - name: Install dependencies with Bun
         run: bun install
 
       - name: Build the package
         run: bun run build
-
-      - name: Publish package with npm
-        run: npm publish
