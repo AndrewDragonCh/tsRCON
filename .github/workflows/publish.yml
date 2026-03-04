@@ -1,4 +1,4 @@
-name: Publish to npm (pnpm)
+name: Publish to npm (bun)
 
 on:
   push:
@@ -22,19 +22,16 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org/
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+      - name: Install Bun
+        run: npm install -g bun
 
       - name: Install dependencies with pnpm
-        run: pnpm install
-
-      # - name: Run tests with pnpm
-      #   run: pnpm test
+        run: bun install
 
       - name: Build the package
-        run: pnpm run build
+        run: bun run build
 
-      - name: Publish package with pnpm
-        run: pnpm publish --access public
+      - name: Publish package with bun
+        run: bun publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
