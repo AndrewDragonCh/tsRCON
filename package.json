@@ -1,6 +1,6 @@
 {
   "name": "tsrcon-client",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "",
   "type": "module",
   "scripts": {
@@ -16,14 +16,21 @@
     "type": "git",
     "url": "git+https://github.com/AndrewDragonCh/tsRCON.git"
   },
+  "files": [
+    "dist",
+    "package.json",
+    "README.md",
+    "LICNESE"
+  ],
   "author": "Andrew Still",
   "license": "ISC",
   "dependencies": {
     "net": "^1.0.2"
   },
   "devDependencies": {
-    "publint": "^0.3.18",
-    "tsdown": "^0.20.3",
-    "typescript": "5.9.3"
+    "@types/node": "^26.6.6",
+    "publint": "^0.3.25",
+    "tsdown": "^0.23.5",
+    "typescript": "^7.1.0-beta"
   }
 }
