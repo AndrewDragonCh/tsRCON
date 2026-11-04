@@ -7,10 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      net:
-        specifier: ^1.0.2
-        version: 1.0.2
     devDependencies:
       '@types/node':
         specifier: ^26.6.6
@@ -339,9 +335,6 @@ packages:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
     engines: {node: '>=4'}
 
-  net@1.0.2:
-    resolution: {integrity: sha512-kbhcj2SVVR4caaVnGLJKmlk2+f+oLkjqdKeQlmUtz6nGzOpbcobwVIeSURNgraV/v3tlmGIX82OcPCl0K6RbHQ==}
-
   obug@3.0.0:
     resolution: {integrity: sha512-5vvB5+W7ePv+p3uqxi+RcW1XAzLW0/hxt3/4X4Lc4qHudzOhmBiBwOY6DRob4WnanAEGvNcLjF+KNOufrUoEQw==}
     engines: {node: '>=12.20.0'}
@@ -632,8 +625,6 @@ snapshots:
   import-without-cache@0.4.1: {}
 
   mri@1.2.0: {}
-
-  net@1.0.2: {}
 
   obug@3.0.0: {}
 
