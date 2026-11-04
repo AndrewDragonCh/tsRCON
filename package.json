@@ -1,7 +1,7 @@
 {
   "name": "tsrcon-client",
-  "version": "1.2.0",
-  "description": "",
+  "version": "1.2.1",
+  "description": "RCON Client written in TypeScript",
   "type": "module",
   "scripts": {
     "build": "tsdown"
